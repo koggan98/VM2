@@ -1,8 +1,19 @@
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Pfad des aktuellen Skripts
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Relativer Pfad zur CSV (hoch zum Hauptverzeichnis "CODE_VM2")
+csv_path = os.path.abspath(os.path.join(script_dir, "../../../../force_data.csv"))
+
+# Prüfen, ob Datei existiert
+if not os.path.exists(csv_path):
+    raise FileNotFoundError(f"Fehler: Datei nicht gefunden! Gesuchter Pfad: {csv_path}")
+
 # CSV-Datei laden
-df = pd.read_csv("force_data.csv")
+df = pd.read_csv(csv_path)
 
 # Plot der Kraftwerte über die Zeit
 plt.figure(figsize=(10, 5))
