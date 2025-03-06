@@ -1,4 +1,6 @@
 # ROS2 Build- und Installationsordner
+.vscode
+
 build/
 install/
 log/
