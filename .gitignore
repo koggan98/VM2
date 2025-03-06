@@ -1,0 +1,11 @@
+# ROS2 Build- und Installationsordner
+build/
+install/
+log/
+.colcon/
+.colcon_build/
+
+__pycache__/
+*.pyc
+*.pyo
+*.swp
