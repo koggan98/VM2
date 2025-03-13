@@ -7,7 +7,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 log_dir = os.path.join(script_dir, "sensor_logs")
 
 # Hardcoded Dateiname
-csv_filename = "Hammer1.csv"
+csv_filename = "Hammer4.csv"
 csv_path = os.path.join(log_dir, csv_filename)
 
 # Prüfen, ob Datei existiert
