@@ -4,6 +4,8 @@ from geometry_msgs.msg import WrenchStamped
 import matplotlib.pyplot as plt
 import numpy as np
 
+# plottet über rosnode live die kräfte und momente
+
 class LiveForceAndTorquePlot(Node):
     def __init__(self):
         super().__init__('live_force_torque_plot')

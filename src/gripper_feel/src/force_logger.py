@@ -3,6 +3,10 @@ from rclpy.node import Node
 from geometry_msgs.msg import WrenchStamped
 import csv
 import time
+import os
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.abspath(os.path.join(script_dir, "force_data.csv"))
 
 class ForceLogger(Node):
     def __init__(self):
@@ -30,11 +34,19 @@ class ForceLogger(Node):
         self.get_logger().info(f"Recorded force: {force_x}, {force_y}, {force_z}")
 
     def save_data(self, filename="force_data.csv"):
-        with open(filename, 'w', newline='') as file:
+        # Verzeichnis des aktuellen Skripts
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Vollständiger Pfad zur Datei im Skriptverzeichnis
+        filepath = os.path.join(script_dir, filename)
+
+        with open(filepath, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["Time", "Force X", "Force Y", "Force Z", "Torque X", "Torque Y", "Torque Z"])
             writer.writerows(self.data)
-        self.get_logger().info(f"Data saved to {filename}")
+
+        self.get_logger().info(f"Data saved to {filepath}")
+
 
 def main(args=None):
     rclpy.init(args=args)
