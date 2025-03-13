@@ -9,7 +9,7 @@ import os
 import threading
 import sys
 
-def get_next_filename(base_name="Hammer", extension=".csv"):
+def get_next_filename(base_name="Hammer_links", extension=".csv"):
     log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sensor_logs")
     os.makedirs(log_dir, exist_ok=True)  # Stelle sicher, dass der Ordner existiert
     

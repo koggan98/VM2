@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# Schreibe um. Das ist aus dem gripper_mover der VM1
-
 import time
 import socket
 import rclpy
@@ -84,7 +82,7 @@ class SocketControllerNode(Node):
         force_y = msg.wrench.force.y
         force_z = msg.wrench.force.z
         
-        if abs(force_x) > 2 or abs(force_y) > 2 or abs(force_z) > 2:
+        if abs(force_x) > 6 or abs(force_y) > 6 or abs(force_z) > 6:
             self.get_logger().info("Force threshold exceeded, opening gripper.")
             self.ur_node.command_gripper(0, speed=255, force=1)
 
