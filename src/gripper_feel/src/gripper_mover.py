@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
-import time
+
 import socket
 import rclpy
 from rclpy.node import Node
+from package import *
 from subpackage import *
-from geometry_msgs.msg import WrenchStamped
+from ur_feedback_socket import *
+from std_msgs.msg import Bool
 
 
 class URCommand:
@@ -60,32 +62,29 @@ class URCommand:
 class SocketControllerNode(Node):
     def __init__(self):
         super().__init__('socket_controller')
-        ##########################################
-        self.robot_ip = "192.168.1.11" # IP ändern
-        ##########################################
+        self.robot_ip = "192.168.1.11" 
+
         self.robot_command_port = 30002
         self.gripper_port = 63352
         self.ur_node = URCommand(self.robot_ip, self.robot_command_port, self.gripper_port)
         self.first_move_finished = False
 
-       # Subscriber für die Kraftsensor-Daten
-        self.subscription = self.create_subscription(
-            WrenchStamped,
-            '/force_torque_sensor_broadcaster/wrench',
-            self.force_callback,
-            10
-        )
+        # Subscriber für /hand_pose
+        self.subscription = self.create_subscription(Bool,'/gripper_command',self.gripper_command_callback,10)
         self.get_logger().info("Socket Mover Node initialized")
 
-    def force_callback(self, msg):
-        force_x = msg.wrench.force.x
-        force_y = msg.wrench.force.y
-        force_z = msg.wrench.force.z
-        ###########################################################################
-        if abs(force_x) > 3 or abs(force_y) > 3 or abs(force_z) > 3:
-        ###########################################################################
-            self.get_logger().info("Force threshold exceeded, opening gripper.")
-            self.ur_node.command_gripper(0, speed=255, force=1)
+   
+    def gripper_command_callback(self, bool_msg):
+        # Extrahiere bool aus nachricht
+        gripper_state = bool_msg.data
+
+        if gripper_state:
+            self.get_logger().info(f"Closing gripper")
+            self.ur_node.command_gripper(250, speed=255, force=1)
+
+        else:
+            self.get_logger().info(f"Opening gripper")
+            self.ur_node.command_gripper(0, speed=255, force=1)           
 
     def destroy_node(self):
         self.ur_node.close_connections()
