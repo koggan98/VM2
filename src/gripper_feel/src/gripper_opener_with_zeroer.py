@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
+
+# offsetten: node.reset_force_offset()
+# in code offsetten: self.reset_force_offset()
+
 import time
 import socket
 import rclpy
 from rclpy.node import Node
-from subpackage import *
 from geometry_msgs.msg import WrenchStamped
 
 
@@ -19,7 +22,6 @@ class URCommand:
         self.socket_gripper.connect((self.robot_ip, self.gripper_port))
         print('UR Node started.')
 
-    
     def ur_command(self, command):
         full_command = f"def my_prog():\n{command}\nend\n"
         try:
@@ -42,12 +44,11 @@ class URCommand:
             self.gripper_command(command_force)
             command_gto = 'SET GTO 1\n'
             self.gripper_command(command_gto)
-            
-            # Berechnung der Dauer für den Gripper-Vorgang
+
             time_for_speed = 4 - (3.25 * (speed - 1) / 254)
             time_for_position = (position / 255) * time_for_speed
             time_to_sleep = time_for_speed - time_for_position
-            
+
             time.sleep(time_to_sleep)
         else:
             print('Invalid gripper command. Position, speed and force must be between 0 and 255.')
@@ -57,43 +58,60 @@ class URCommand:
         self.socket_gripper.close()
         print('Closed connection to robot.')
 
+
 class SocketControllerNode(Node):
     def __init__(self):
         super().__init__('socket_controller')
-        ##########################################
-        self.robot_ip = "192.168.1.11" # IP ändern
-        ##########################################
+        self.robot_ip = "192.168.1.11"
         self.robot_command_port = 30002
         self.gripper_port = 63352
         self.ur_node = URCommand(self.robot_ip, self.robot_command_port, self.gripper_port)
-        self.first_move_finished = False
+        self.get_logger().info("Socket Mover Node initialized")
 
-       # Subscriber für die Kraftsensor-Daten
+        # Offsets für Kraft und Drehmoment
+        self.force_offset = None
+        self.torque_offset = None
+
+        # Subscriber für die Kraftsensor-Daten
         self.subscription = self.create_subscription(
             WrenchStamped,
             '/force_torque_sensor_broadcaster/wrench',
             self.force_callback,
             10
         )
-        self.get_logger().info("Socket Mover Node initialized")
 
     def force_callback(self, msg):
-        force_x = msg.wrench.force.x
-        force_y = msg.wrench.force.y
-        force_z = msg.wrench.force.z
-        ###########################################################################
-        if abs(force_x) > 1 or abs(force_y) > 1 or abs(force_z) > 1:
-        ###########################################################################
+        # Falls der Offset noch nicht gesetzt wurde, speichere ihn als Nullpunkt
+        if self.force_offset is None:
+            self.force_offset = msg.wrench.force
+            self.torque_offset = msg.wrench.torque
+            self.get_logger().info("🔹 Offset gespeichert: Setze aktuelle Werte als Null.")
+
+        # Korrigierte Werte berechnen
+        force_x = msg.wrench.force.x - self.force_offset.x
+        force_y = msg.wrench.force.y - self.force_offset.y
+        force_z = msg.wrench.force.z - self.force_offset.z
+
+        # Nur wenn sich die Kraft von der Nullposition signifikant ändert, soll der Greifer öffnen
+        if abs(force_x) > 6 or abs(force_y) > 6 or abs(force_z) > 6:
             self.get_logger().info("Force threshold exceeded, opening gripper.")
             self.ur_node.command_gripper(0, speed=255, force=1)
+
+    def reset_force_offset(self):
+        """Setzt die Kraft- und Drehmomentwerte auf 0 zurück (zum Beispiel beim Zielerreichen)."""
+        self.force_offset = None
+        self.torque_offset = None
+        self.get_logger().info("🔄 Kraftsensor-Offset wurde zurückgesetzt!")
 
     def destroy_node(self):
         self.ur_node.close_connections()
         super().destroy_node()
 
+
 def main(args=None):
     rclpy.init(args=args)
     node = SocketControllerNode()
+
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
@@ -101,6 +119,7 @@ def main(args=None):
     finally:
         node.destroy_node()
         rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
