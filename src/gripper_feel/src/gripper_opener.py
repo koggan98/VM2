@@ -81,8 +81,9 @@ class SocketControllerNode(Node):
         force_x = msg.wrench.force.x
         force_y = msg.wrench.force.y
         force_z = msg.wrench.force.z
-        
+        ###########################################################################
         if abs(force_x) > 6 or abs(force_y) > 6 or abs(force_z) > 6:
+        ###########################################################################
             self.get_logger().info("Force threshold exceeded, opening gripper.")
             self.ur_node.command_gripper(0, speed=255, force=1)
 
