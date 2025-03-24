@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 
 # Pfad zum sensor_logs-Ordner
 script_dir = os.path.dirname(os.path.abspath(__file__))
-log_dir = os.path.join(script_dir, "sensor_logs","daniel_3N")
+log_dir = os.path.join(script_dir, "sensor_logs","daniel_3N", "hammer_rechts")
 
 # Hardcoded Dateiname
-csv_filename = "pinzette_daniel_rechts10.csv"
+csv_filename = "mean_hammer_rechts.csv"
 csv_path = os.path.join(log_dir, csv_filename)
 
 # Prüfen, ob Datei existiert

@@ -4,7 +4,7 @@ import numpy as np
 
 # Pfad zum sensor_logs-Ordner
 script_dir = os.path.dirname(os.path.abspath(__file__))
-log_dir = os.path.join(script_dir, "sensor_logs","2N_threshold")
+log_dir = os.path.join(script_dir, "sensor_logs","daniel_3N")
 
 # Funktion, um Mittelwert & Standardabweichung für eine Kategorie zu berechnen
 def analyze_category(category_prefix):
@@ -36,7 +36,7 @@ def analyze_category(category_prefix):
     return mean_values, std_values
 
 # Kategorien analysieren
-analyze_category("Hammer_links")
-analyze_category("Hammer_rechts")
-analyze_category("Schere_links")
-analyze_category("Schere_rechts")
+analyze_category("hammer_daniel_links")
+analyze_category("hammer_daniel_rechts")
+analyze_category("pinzette_daniel_links")
+analyze_category("pinzette_daniel_rechts")
