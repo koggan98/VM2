@@ -1,3 +1,7 @@
+# 30 frames werden als Mittelwert genommen
+# alles danach wird vom mittelwert abgezogen 
+# pro frame erhält man 2D mit matrix 256 float werten von 0 bis 1 wobei 0 kein drcuk und 1 max druck ist
+
 import numpy as np
 import serial
 import threading
@@ -8,13 +12,13 @@ from scipy.ndimage import gaussian_filter
 # import seaborn as sns
 # os.system('cls')
 
-contact_data_norm = np.zeros((16,16))
+contact_data_norm = np.zeros((16,16)) # 16x16 werte, das erhalte ich in jedem loop
 WINDOW_WIDTH = contact_data_norm.shape[1]*30
 WINDOW_HEIGHT = contact_data_norm.shape[0]*30
 cv2.namedWindow("Contact Data_left", cv2.WINDOW_NORMAL)
 cv2.resizeWindow("Contact Data_left",WINDOW_WIDTH, WINDOW_HEIGHT)
-THRESHOLD =12
-NOISE_SCALE =60
+THRESHOLD = 12 # hier war 12, alles unter 10 wird nicht angezeigt
+NOISE_SCALE = 60
 
 def readThread(serDev):
     global contact_data_norm,flag
@@ -90,8 +94,8 @@ def readThread(serDev):
 PORT ='/dev/ttyUSB0'
 BAUD = 2000000
 # serDev = serial.Serial(PORT,2000000) 
-# serDev = serial.Serial('/dev/ttyUSB0',BAUD)
-serDev = serial.Serial('COM3', BAUD)
+serDev = serial.Serial('/dev/ttyUSB0',BAUD)
+# serDev = serial.Serial('COM3', BAUD)
 exitThread = False
 serDev.flush()
 serialThread = threading.Thread(target=readThread, args=(serDev,))
