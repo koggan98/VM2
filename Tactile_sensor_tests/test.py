@@ -17,8 +17,8 @@ WINDOW_WIDTH = contact_data_norm.shape[1]*30
 WINDOW_HEIGHT = contact_data_norm.shape[0]*30
 cv2.namedWindow("Contact Data_left", cv2.WINDOW_NORMAL)
 cv2.resizeWindow("Contact Data_left",WINDOW_WIDTH, WINDOW_HEIGHT)
-THRESHOLD = 12 # hier war 12, alles unter 10 wird nicht angezeigt
-NOISE_SCALE = 60
+THRESHOLD = 6 # hier war 12, je tiefer desto sensibler
+NOISE_SCALE = 30 # hier war 60, je neideriger desto sensibler
 
 def readThread(serDev):
     global contact_data_norm,flag
@@ -41,7 +41,7 @@ def readThread(serDev):
                     t1 =time.time()
                     data_tac.append(backup)
                     num += 1
-                    if num > 30:
+                    if num > 30: # es werden 30 frames als mittelwert genommen
                         break
                 current = []
                 continue
@@ -71,7 +71,7 @@ def readThread(serDev):
                     # print(backup)
                 current = []
                 if backup is not None:
-                    contact_data= backup-median-THRESHOLD
+                    contact_data= backup-median-THRESHOLD # das aktuelle frame minus median aus 30 frames minus threshold
                     contact_data = np.clip(contact_data, 0, 100)
                     
                     if np.max(contact_data) < THRESHOLD:
@@ -103,10 +103,10 @@ serialThread.daemon = True
 serialThread.start()
 
 
-def apply_gaussian_blur(contact_map, sigma=0.1):
+def apply_gaussian_blur(contact_map, sigma=0.1): # hier war 0.1
     return gaussian_filter(contact_map, sigma=sigma)
 
-def temporal_filter(new_frame, prev_frame, alpha=0.2):
+def temporal_filter(new_frame, prev_frame, alpha=0.2): # hier war 0.2
     """
     Apply temporal smoothing filter.
     'alpha' determines the blending factor.
@@ -129,8 +129,13 @@ if __name__ == '__main__':
                 prev_frame = temp_filtered_data
 
                 # Scale to 0-255 and convert to uint8
-                temp_filtered_data_scaled = (temp_filtered_data * 255).astype(np.uint8)
-
+                #temp_filtered_data_scaled = (temp_filtered_data * 255).astype(np.uint8)
+############################################################### weiter oben original, aber x achse war invertiert
+                # Horizontal spiegeln (X-Achse invertieren)
+                flipped_data = np.fliplr(temp_filtered_data)
+                # Skalieren für Anzeige
+                temp_filtered_data_scaled = (flipped_data * 255).astype(np.uint8)
+############################################################### von mir
                 # Apply color map
                 colormap = cv2.applyColorMap(temp_filtered_data_scaled, cv2.COLORMAP_VIRIDIS)
 
