@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # Pfad zum sensor_logs-Ordner
 script_dir = os.path.dirname(os.path.abspath(__file__))
-log_dir = os.path.join(script_dir, "sensor_logs", "2N_threshold")
+log_dir = os.path.join(script_dir, "sensor_logs", "2N_threshold_daniel")
 
 # Funktion, um alle relevanten Dateien zu laden und zu mitteln
 def get_mean_force_torque(category_prefix):
